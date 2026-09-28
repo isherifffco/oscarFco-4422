@@ -1,0 +1,23 @@
+{
+  "name": "caracol-derby",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dashboard de apuestas simuladas en carreras de caracoles con pasarela de pagos mock (SnailPay).",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c yellow,cyan \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "test": "npm run test -w backend && npm run test -w frontend",
+    "typecheck": "npm run typecheck -w backend && npm run typecheck -w frontend",
+    "lint": "npm run lint -w frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}
