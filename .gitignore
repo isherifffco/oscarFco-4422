@@ -9,3 +9,6 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# Configuracion local de herramientas
+.claude/

@@ -7,7 +7,7 @@ const booleanFromString = z
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().int().min(1).max(65_535).default(4000),
+  PORT: z.coerce.number().int().min(1).max(65_535).default(3001),
   CORS_ORIGIN: z.string().min(1).default('http://localhost:5173'),
   SNAILPAY_SIMULATE_OUTAGE: booleanFromString,
   SNAILPAY_SLOW_RESPONSE_MS: z.coerce.number().int().nonnegative().default(15_000),

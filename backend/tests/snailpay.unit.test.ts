@@ -70,7 +70,7 @@ describe('IdempotencyStore', () => {
 describe('loadConfig', () => {
   it('usa valores por defecto seguros', () => {
     const config = loadConfig({});
-    expect(config.port).toBe(4000);
+    expect(config.port).toBe(3001);
     expect(config.snailPay.simulateOutage).toBe(false);
   });
 
