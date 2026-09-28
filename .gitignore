@@ -12,3 +12,6 @@ Thumbs.db
 
 # Configuracion local de herramientas
 .claude/
+
+# Borradores de la entrega (PDF)
+entrega/
