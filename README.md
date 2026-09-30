@@ -11,6 +11,9 @@ en Express.
 
 > Todos los datos (carreras, apuestas y tarjetas) son ficticios. SnailPay no procesa pagos reales.
 
+**Demo en línea:** https://caracol-derby.onrender.com (plan gratuito: la primera visita puede tardar cerca de un
+minuto si el servicio estaba suspendido). No requiere credenciales: crea una cuenta y usa las tarjetas de prueba.
+
 ## Requisitos
 
 - Node.js **20.19 o superior** (probado con Node 24).
