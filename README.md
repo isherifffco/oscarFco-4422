@@ -60,7 +60,36 @@ Si cambias el puerto del backend, arranca Vite con `VITE_API_PROXY_TARGET=http:/
 npm run build
 ```
 
-Genera `backend/dist` (`npm run start -w backend`) y `frontend/dist` (`npm run preview -w frontend`).
+Genera `backend/dist` y `frontend/dist`. En producción Express sirve también el frontend, así que basta con:
+
+```bash
+NODE_ENV=production npm start
+```
+
+y abrir http://localhost:3001 (API y aplicación en el mismo origen).
+
+## Despliegue
+
+La aplicación se despliega como **un solo servicio web Node en [Render](https://render.com)** usando el blueprint
+[`render.yaml`](render.yaml):
+
+1. En Render: **New → Blueprint** y seleccionar este repositorio.
+2. Render ejecuta `npm ci --include=dev && npm run build` y luego `npm start`; el health check es `/api/health`.
+3. Express sirve el API en `/api/*` y el build de React para cualquier otra ruta (fallback a `index.html` para
+   React Router). Al ser el mismo origen no hace falta CORS ni configurar la URL del API.
+
+Variables relevantes (ya definidas en el blueprint): `NODE_ENV=production`, `TRUST_PROXY=1` (el rate limit usa la IP
+real detrás del balanceador) y `SNAILPAY_SIMULATE_OUTAGE` (cambiarla a `true` desde el panel de Render simula la
+caída de SnailPay).
+
+Limitaciones del plan gratuito: el servicio se suspende tras ~15 minutos sin tráfico y la primera visita puede tardar
+alrededor de un minuto; al reiniciarse se pierde el almacén de idempotencia en memoria. Los datos de cada usuario
+viven en el LocalStorage de su navegador, por lo que quien evalúa solo necesita registrarse en la app.
+
+## Propuesta de base de datos
+
+Cómo se conectaría la aplicación a PostgreSQL (entidades, relaciones y cambios en frontend y backend):
+**[docs/BASE_DE_DATOS.md](docs/BASE_DE_DATOS.md)**.
 
 ## Pruebas
 
@@ -73,7 +102,7 @@ Verificaciones estáticas: `npm run typecheck` y `npm run lint`.
 
 | Área | Qué se prueba |
 |---|---|
-| Backend – API (Supertest) | Cada escenario de SnailPay (aprobado, rechazos, validación, 500, 503, 504), contrato de respuesta, idempotencia, rate limit, JSON mal formado, 404. |
+| Backend – API (Supertest) | Cada escenario de SnailPay (aprobado, rechazos, validación, 500, 503, 504), contrato de respuesta, idempotencia, rate limit, JSON mal formado, 404 y el servido del frontend en producción (fallback de la SPA). |
 | Backend – unidades | Reglas de decisión, generación de respuestas, TTL del almacén de idempotencia, carga de configuración. |
 | Frontend – servicios | Hash de contraseñas, registro/login/logout, bloqueo por intentos fallidos, expiración de sesión, datos corruptos en LocalStorage, saldo en centavos, no abonar dos veces la misma operación. |
 | Frontend – cliente SnailPay | Aprobación, rechazo, error del sistema, respuesta no JSON, respuestas inconsistentes (monto/pagador/código), error de red, timeout y cancelación. |
@@ -112,7 +141,7 @@ En el formulario de recarga hay un panel “Datos de prueba” con estas tarjeta
 ├── backend/
 │   ├── src/
 │   │   ├── config/env.ts              # Variables de entorno validadas con Zod
-│   │   ├── middleware/                # Logger (sin cuerpos) y manejadores de error
+│   │   ├── middleware/                # Logger (sin cuerpos), errores y servido de la SPA
 │   │   ├── modules/snailpay/          # Router, reglas, esquemas, escenarios, idempotencia
 │   │   ├── app.ts                     # createApp(config): Helmet, CORS, rutas
 │   │   └── index.ts                   # Arranque del servidor
@@ -129,7 +158,10 @@ En el formulario de recarga hay un panel “Datos de prueba” con estas tarjeta
 │       ├── lib/                       # Storage tipado, hash, dinero, PRNG con semilla
 │       ├── routes/                    # Rutas públicas y protegidas
 │       └── test/                      # Configuración y utilidades de pruebas
-└── docs/SNAILPAY.md                   # Contrato del API y escenarios
+├── docs/
+│   ├── SNAILPAY.md                    # Contrato del API y escenarios
+│   └── BASE_DE_DATOS.md               # Propuesta de base de datos
+└── render.yaml                        # Blueprint de despliegue en Render
 ```
 
 ## Decisiones técnicas
