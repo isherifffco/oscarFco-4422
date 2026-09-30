@@ -12,6 +12,8 @@ const envSchema = z.object({
   SNAILPAY_SIMULATE_OUTAGE: booleanFromString,
   SNAILPAY_SLOW_RESPONSE_MS: z.coerce.number().int().nonnegative().default(15_000),
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(30),
+  STATIC_DIR: z.string().min(1).optional(),
+  TRUST_PROXY: z.coerce.number().int().nonnegative().default(0),
 });
 
 export interface AppConfig {
@@ -25,6 +27,10 @@ export interface AppConfig {
     slowResponseMs: number;
   };
   rateLimitPerMinute: number;
+  /** Carpeta con el build del frontend. Si se define, Express también sirve la SPA. */
+  staticDir: string | null;
+  /** Número de proxies de confianza (1 detrás del balanceador de la plataforma de despliegue). */
+  trustProxy: number;
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -48,5 +54,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       slowResponseMs: values.SNAILPAY_SLOW_RESPONSE_MS,
     },
     rateLimitPerMinute: values.RATE_LIMIT_PER_MINUTE,
+    staticDir: values.STATIC_DIR ?? null,
+    trustProxy: values.TRUST_PROXY,
   };
 }

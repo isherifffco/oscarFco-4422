@@ -1,0 +1,23 @@
+# Blueprint de Render: un solo servicio web Node que sirve el API (Express) y el frontend (build de Vite).
+# Uso: en Render, "New > Blueprint" y seleccionar este repositorio.
+services:
+  - type: web
+    name: caracol-derby
+    runtime: node
+    plan: free
+    # Se instalan también las devDependencies porque el build necesita TypeScript y Vite.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      # Render pone un balanceador delante: el rate limit debe usar la IP real del cliente.
+      - key: TRUST_PROXY
+        value: "1"
+      # Cambiar a "true" para simular la caída total de SnailPay (503).
+      - key: SNAILPAY_SIMULATE_OUTAGE
+        value: "false"

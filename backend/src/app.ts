@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import type { AppConfig } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandlers.js';
 import { requestLogger } from './middleware/requestLogger.js';
+import { createSpaStaticRouter } from './middleware/spaStatic.js';
 import { createSnailPayRouter, type SnailPayRouterDeps } from './modules/snailpay/snailpay.router.js';
 
 export interface CreateAppOptions {
@@ -15,6 +16,10 @@ export function createApp(config: AppConfig, options: CreateAppOptions = {}): Ex
   const app = express();
 
   app.disable('x-powered-by');
+  if (config.trustProxy > 0) {
+    // Detrás del balanceador de la plataforma: necesario para que el rate limit use la IP real.
+    app.set('trust proxy', config.trustProxy);
+  }
   app.use(helmet());
   app.use(
     cors({
@@ -41,6 +46,10 @@ export function createApp(config: AppConfig, options: CreateAppOptions = {}): Ex
       ...options.snailPay,
     }),
   );
+
+  if (config.staticDir) {
+    app.use(createSpaStaticRouter(config.staticDir));
+  }
 
   app.use(notFoundHandler);
   app.use(errorHandler);

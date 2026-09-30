@@ -12,6 +12,8 @@ export function buildTestConfig(overrides: Partial<AppConfig['snailPay']> = {}, 
       ...overrides,
     },
     rateLimitPerMinute,
+    staticDir: null,
+    trustProxy: 0,
   };
 }
 
